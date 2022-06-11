@@ -1,81 +1,86 @@
 package models
 
 import (
-	"time"
+	"errors"
 
 	"github.com/faridlamaul/medlit-api-backend/api/utils/token"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID uint32 `gorm:"primary_key;auto_increment" json:"id"`
-	Name string `gorm:"size:255;not null" json:"name"`
-	Email string `gorm:"size:100;not null;unique" json:"email"`
-	Password string `gorm:"size:100;not null;" json:"password"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	gorm.Model
+	Name     string `gorm:"size:255;not null" json:"name"`
+	Email    string `gorm:"size:255;not null;unique" json:"email"`
+	Password string `gorm:"size:255;not null" json:"password"`
 }
 
 func GetNameByEmail(email string) string {
-	var err error
-	user := User{}
+	var u User
+	DB.Where("email = ?", email).Take(&u)
+	return u.Name
+}
 
-	err = DB.Model(User{}).Where("email = ?", email).Take(&user).Error
+func GetUserByID(uid uint) (User, error) {
+	var u User
 
-	if err != nil {
-		return ""
+	if err := DB.First(&u, uid).Error; err != nil {
+		return u, errors.New("User not found")
 	}
 
-	return user.Name
+	u.PrepareGive()
+
+	return u, nil
 }
 
-func Hash(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func (u *User) PrepareGive() {
+	u.Password = ""
 }
 
-func VerifyPassword(hashedPassword, password string) error {
+func VerifyPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
-func (u *User) BeforeSave() error {
-	hashedPassword, err := Hash(u.Password)
-	if err != nil {
-		return err
-	}
-	u.Password = string(hashedPassword)
-	return nil
-}
-
-func LoginCheck(email, password string) (string, error) {
+func LoginCheck(email string, password string) (string, error) {
 	var err error
 
-	user := User{}
+	u := User{}
 
-	err = DB.Model(User{}).Where("email = ?", email).Take(&user).Error
+	err = DB.Model(User{}).Where("email = ?", email).Take(&u).Error
 
 	if err != nil {
 		return "", err
 	}
 
-	err = VerifyPassword(password, user.Password)
+	err = VerifyPassword(password, u.Password)
 
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
 
-	token, err := token.GenerateToken(uint(user.ID))
+	token, err := token.GenerateToken(u.ID)
 
 	if err != nil {
 		return "", err
 	}
 
 	return token, nil
-}
+} 
 
 func (u *User) SaveUser() (*User, error) {
-	err := DB.Create(&u).Error
+	var err error
+	err = DB.Create(&u).Error
 	if err != nil {
-		return nil, err
+		return &User{}, err
 	}
 	return u, nil
+}
+
+func (u *User) BeforeSave() error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hashedPassword)
+	return nil
 }
