@@ -9,10 +9,10 @@ import (
 )
 
 type MedicineInput struct {
-	GenericName string `json:"generic_name" binding:"required"`
-	PhotoURL string `json:"photo_url" binding:"required"`
-	Purpose string `json:"purpose" binding:"required"`
-	SideEffects string `json:"side_effects" binding:"required"`
+	GenericName 	 string `json:"generic_name" binding:"required"`
+	PhotoURL  		 string `json:"photo_url" binding:"required"`
+	Purpose 		 string `json:"purpose" binding:"required"`
+	SideEffects 	 string `json:"side_effects" binding:"required"`
 	Contraindication string `json:"contraindication" binding:"required"`
 }
 
@@ -50,12 +50,12 @@ func AddMedicine(c *gin.Context) {
 }
 
 func GetAllMedicine(c *gin.Context) {
-	medicines := models.GetAllMedicine()
+	medicine := models.GetAllMedicine()
 
 	c.JSON(http.StatusOK, gin.H{
 		"error": "false",
 		"message": "Medicine list",
-		"medicineList": medicines,
+		"medicineList": medicine,
 	})
 }
 
@@ -82,7 +82,7 @@ func GetMedicineByID(c *gin.Context) {
 func GetMedicineByQuery(c *gin.Context) {
 	generic_name := c.Query("generic_name")
 
-	medicines, err := models.GetMedicineByQuery(generic_name)
+	medicine, err := models.GetMedicineByQuery(generic_name)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -95,6 +95,6 @@ func GetMedicineByQuery(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"error": "false",
 		"message": "Medicine found",
-		"medicineList": medicines,
+		"medicineList": medicine,
 	})
 }

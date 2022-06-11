@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"github.com/faridlamaul/medlit-api-backend/api/cloudbucket"
 	"github.com/faridlamaul/medlit-api-backend/api/controllers"
 	"github.com/faridlamaul/medlit-api-backend/api/models"
 	"github.com/gin-gonic/gin"
@@ -14,21 +13,19 @@ func main() {
 
 	router := gin.Default()
 
-	v1 := router.Group("/api/v1")
+	api := router.Group("/api")
 
-	v1.GET("/", func (c *gin.Context) {
+	api.GET("/", func (c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"error": "false",
 			"message": "Welcome to Medlit API",
 		})
 	})
-	v1.POST("/login", controllers.Login)
-	v1.POST("/register", controllers.Register)
-	v1.POST("/medicine/add", controllers.AddMedicine)
-	v1.GET("/medicine/get/all", controllers.GetAllMedicine)
-	v1.GET("/medicine/get/:id", controllers.GetMedicineByID)
-	v1.GET("/medicine/search", controllers.GetMedicineByQuery)
-	v1.POST("/images/upload", cloudbucket.HandleFileUpload)
+	api.POST("/medlit/login", controllers.Login)
+	api.POST("/medlit/register", controllers.Register)
+	api.POST("/medlit/medicine/add", controllers.AddMedicine)
+	api.GET("/medlit/medicine/get/all", controllers.GetAllMedicine)
+	api.GET("/medlit/medicine/get/:id", controllers.GetMedicineByID)
+	api.GET("/medlit/medicine/search", controllers.GetMedicineByQuery)
 
 	router.Run(":8080")
 }

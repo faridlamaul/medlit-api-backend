@@ -5,36 +5,37 @@ import (
 
 	"github.com/faridlamaul/medlit-api-backend/api/utils/token"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	Name     string `gorm:"size:255;not null" json:"name"`
-	Email    string `gorm:"size:255;not null;unique" json:"email"`
-	Password string `gorm:"size:255;not null" json:"password"`
+	ID		  uint	 `gorm:"primary_key;auto_increment" json:"id"`
+	Name      string `gorm:"size:255;not null" json:"name"`
+	Email     string `gorm:"size:255;not null;unique" json:"email"`
+	Password  string `gorm:"size:255;not null" json:"password"`
+	CreatedAt string `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt string `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func GetNameByEmail(email string) string {
-	var u User
-	DB.Where("email = ?", email).Take(&u)
-	return u.Name
+	var user User
+	DB.Where("email = ?", email).Take(&user)
+	return user.Name
 }
 
 func GetUserByID(uid uint) (User, error) {
-	var u User
+	var user User
 
-	if err := DB.First(&u, uid).Error; err != nil {
-		return u, errors.New("User not found")
+	if err := DB.First(&user, uid).Error; err != nil {
+		return user, errors.New("User not found")
 	}
 
-	u.PrepareGive()
+	user.PrepareGive()
 
-	return u, nil
+	return user, nil
 }
 
-func (u *User) PrepareGive() {
-	u.Password = ""
+func (user *User) PrepareGive() {
+	user.Password = ""
 }
 
 func VerifyPassword(password, hashedPassword string) error {
@@ -44,21 +45,21 @@ func VerifyPassword(password, hashedPassword string) error {
 func LoginCheck(email string, password string) (string, error) {
 	var err error
 
-	u := User{}
+	user := User{}
 
-	err = DB.Model(User{}).Where("email = ?", email).Take(&u).Error
+	err = DB.Model(User{}).Where("email = ?", email).Take(&user).Error
 
 	if err != nil {
 		return "", err
 	}
 
-	err = VerifyPassword(password, u.Password)
+	err = VerifyPassword(password, user.Password)
 
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
 
-	token, err := token.GenerateToken(u.ID)
+	token, err := token.GenerateToken(user.ID)
 
 	if err != nil {
 		return "", err
@@ -67,20 +68,20 @@ func LoginCheck(email string, password string) (string, error) {
 	return token, nil
 } 
 
-func (u *User) SaveUser() (*User, error) {
+func (user *User) SaveUser() (*User, error) {
 	var err error
-	err = DB.Create(&u).Error
+	err = DB.Create(&user).Error
 	if err != nil {
 		return &User{}, err
 	}
-	return u, nil
+	return user, nil
 }
 
-func (u *User) BeforeSave() error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+func (user *User) BeforeSave() error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	u.Password = string(hashedPassword)
+	user.Password = string(hashedPassword)
 	return nil
 }

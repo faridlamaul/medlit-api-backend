@@ -4,37 +4,8 @@ import (
 	"net/http"
 
 	"github.com/faridlamaul/medlit-api-backend/api/models"
-	"github.com/faridlamaul/medlit-api-backend/api/utils/token"
 	"github.com/gin-gonic/gin"
 )
-
-func CurrentUser (c *gin.Context) {
-	user_id, err := token.ExtractTokenID(c)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "true", 
-			"message": err.Error(),
-		})
-		return
-	}
-
-	u, err := models.GetUserByID(user_id)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"errror": "true",
-			"message": err.Error(), 
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"error": "false",
-		"message": "success", 
-		"data": u, 
-	})
-}
 
 type LoginInput struct {
 	Email    string `json:"email" binding:"required"`
@@ -52,13 +23,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	u := models.User{}
+	user := models.User{}
 
-	u.Email = input.Email
-	u.Password = input.Password
-	u.Name = models.GetNameByEmail(u.Email)
+	user.Email = input.Email
+	user.Password = input.Password
+	user.Name = models.GetNameByEmail(user.Email)
 
-	token, err := models.LoginCheck(u.Email, u.Password)
+	token, err := models.LoginCheck(user.Email, user.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -72,7 +43,7 @@ func Login(c *gin.Context) {
 		"error" : "false", 
 		"message" : "Login Successful", 
 		"loginResult" : gin.H{
-			"name" : u.Name, 
+			"name" : user.Name, 
 			"token" : token,
 		}, 
 	})
@@ -94,21 +65,21 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	u := models.User{}
+	user := models.User{}
 	
-	u.Name = input.Name
-	u.Email = input.Email
-	u.Password = input.Password
+	user.Name = input.Name
+	user.Email = input.Email
+	user.Password = input.Password
 	
-	if hashErr := u.BeforeSave(); hashErr != nil {
+	if err := user.BeforeSave(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "true", 
-			"message": hashErr.Error(), 
+			"message": err.Error(), 
 		})
 		return
 	}
 
-	_, err := u.SaveUser()
+	_, err := user.SaveUser()
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
