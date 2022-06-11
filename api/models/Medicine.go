@@ -1,16 +1,18 @@
 package models
 
-import "time"
+import "gorm.io/gorm"
 
+// ID uint32 `gorm:"primary_key;auto_increment" json:"id"`
+// CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+// UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	
 type Medicine struct {
-	ID uint32 `gorm:"primary_key;auto_increment" json:"id"`
+	gorm.Model
 	GenericName string `gorm:"size:255;not null" json:"generic_name"`
 	PhotoURL string `gorm:"size:255;not null" json:"photo_url"`
 	Purpose string `gorm:"size:255;not null" json:"purpose"`
 	SideEffects string `gorm:"size:255;not null" json:"side_effects"`
 	Contraindication string `gorm:"size:255;not null" json:"contraindication"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func (m *Medicine) CreateMedicine() (*Medicine, error) {
