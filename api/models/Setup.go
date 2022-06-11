@@ -29,7 +29,7 @@ func ConnectToDatabase() {
 	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
 
 	DB, err = gorm.Open(mysql.Open(DBURL), &gorm.Config{})
-
+	
 	if err != nil {
 		fmt.Println("Cannot connect to database", Dbdriver)
 		log.Fatal("connection error:", err)
@@ -37,5 +37,6 @@ func ConnectToDatabase() {
 		fmt.Println("Connected to database", Dbdriver)
 	}
 
-	DB.AutoMigrate(&User{}, &Medicine{})
+	DB.AutoMigrate(&User{})
+	DB.AutoMigrate(&Medicine{})
 }
