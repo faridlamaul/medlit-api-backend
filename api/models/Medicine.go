@@ -9,6 +9,8 @@ type Medicine struct {
 	Purpose 		 string `gorm:"size:255;not null" json:"purpose"`
 	SideEffects 	 string `gorm:"size:255;not null" json:"side_effects"`
 	Contraindication string `gorm:"size:255;not null" json:"contraindication"`
+	Dosage 			 string `gorm:"size:255;not null" json:"dosage"`
+	Ingredients 	 string `gorm:"size:255;not null" json:"ingredients"`
 	CreatedAt 		 time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt 		 time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }

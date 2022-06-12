@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/faridlamaul/medlit-api-backend/api/utils/token"
 	"golang.org/x/crypto/bcrypt"
@@ -12,8 +13,8 @@ type User struct {
 	Name      string `gorm:"size:255;not null" json:"name"`
 	Email     string `gorm:"size:255;not null;unique" json:"email"`
 	Password  string `gorm:"size:255;not null" json:"password"`
-	CreatedAt string `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt string `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func GetNameByEmail(email string) string {
@@ -68,9 +69,22 @@ func LoginCheck(email string, password string) (string, error) {
 	return token, nil
 } 
 
+func ConfirmPassword(password, confirmPassword string) error {
+	if password != confirmPassword {
+		return errors.New("password does not match")
+	}
+	return nil
+}
+
+func RegisterCheck(password string, confirmPassword string) error {
+	if err := ConfirmPassword(password, confirmPassword); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (user *User) SaveUser() (*User, error) {
-	var err error
-	err = DB.Create(&user).Error
+	err := DB.Create(&user).Error
 	if err != nil {
 		return &User{}, err
 	}

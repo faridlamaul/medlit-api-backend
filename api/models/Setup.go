@@ -5,37 +5,46 @@ import (
 	"log"
 	"os"
 
+	// production
+	// _ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
+
 	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
+
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
 func ConnectToDatabase() {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		panic("Error loading .env file")
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
-	DbHost := os.Getenv("DB_HOST")
-	Dbdriver := os.Getenv("DB_DRIVER")
-	DbUser := os.Getenv("DB_USER")
-	DbPassword := os.Getenv("DB_PASSWORD")
-	DbName := os.Getenv("DB_NAME")
-	DbPort := os.Getenv("DB_PORT")
-
-	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
-
-	DB, err = gorm.Open(mysql.Open(DBURL), &gorm.Config{})
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	databaseName := os.Getenv("DB_NAME")
+	// production
+	// dsn := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, user, databaseName, password)
 	
+	// development
+	dsn := fmt.Sprintf("host=%s user=%s dbname=%s port=5432 sslmode=disable password=%s", dbHost, user, databaseName, password)
+
+	// production
+	// db, err := gorm.Open(postgres.New(postgres.Config{
+	// 	DriverName: "cloudsqlpostgres",
+	// 	DSN:        dsn,
+	// }))
+
+	// development
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
-		fmt.Println("Cannot connect to database", Dbdriver)
-		log.Fatal("connection error:", err)
-	} else {
-		fmt.Println("Connected to database", Dbdriver)
+		panic(err)
 	}
+
+	DB = db
 
 	DB.AutoMigrate(&User{})
 	DB.AutoMigrate(&Medicine{})

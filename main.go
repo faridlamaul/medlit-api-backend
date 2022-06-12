@@ -13,19 +13,20 @@ func main() {
 
 	router := gin.Default()
 
-	api := router.Group("/api")
+	api := router.Group("/api/medlit")
 
 	api.GET("/", func (c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
+			"error": "false",
 			"message": "Welcome to Medlit API",
 		})
 	})
-	api.POST("/medlit/login", controllers.Login)
-	api.POST("/medlit/register", controllers.Register)
-	api.POST("/medlit/medicine/add", controllers.AddMedicine)
-	api.GET("/medlit/medicine/get/all", controllers.GetAllMedicine)
-	api.GET("/medlit/medicine/get/:id", controllers.GetMedicineByID)
-	api.GET("/medlit/medicine/search", controllers.GetMedicineByQuery)
+	api.POST("/login", controllers.Login)
+	api.POST("/register", controllers.Register)
+	api.POST("/medicine/add", controllers.AddMedicine)
+	api.GET("/medicine/get/all", controllers.GetAllMedicine)
+	api.GET("/medicine/get/:id", controllers.GetMedicineByID)
+	api.GET("/medicine/search", controllers.GetMedicineByQuery)
 
 	router.Run(":8080")
 }

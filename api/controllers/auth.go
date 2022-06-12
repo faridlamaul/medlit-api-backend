@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/faridlamaul/medlit-api-backend/api/models"
 	"github.com/gin-gonic/gin"
 )
+
 
 type LoginInput struct {
 	Email    string `json:"email" binding:"required"`
@@ -53,6 +55,7 @@ type RegisterInput struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	ConfirmPassword string `json:"confirm_password" binding:"required"`
 }
 
 func Register(c *gin.Context) {
@@ -70,7 +73,7 @@ func Register(c *gin.Context) {
 	user.Name = input.Name
 	user.Email = input.Email
 	user.Password = input.Password
-	
+
 	if err := user.BeforeSave(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "true", 
@@ -79,7 +82,15 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	_, err := user.SaveUser()
+	errConfirmPass := models.RegisterCheck(input.Password, input.ConfirmPassword); if errConfirmPass != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "true",
+			"message": errConfirmPass.Error(),
+		})
+		return
+	}
+
+	result, err := user.SaveUser()
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -88,6 +99,8 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
+
+	fmt.Println(result)
 
 	c.JSON(http.StatusOK, gin.H{
 		"error": "false", 

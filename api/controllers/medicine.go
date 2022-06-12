@@ -14,6 +14,8 @@ type MedicineInput struct {
 	Purpose 		 string `json:"purpose" binding:"required"`
 	SideEffects 	 string `json:"side_effects" binding:"required"`
 	Contraindication string `json:"contraindication" binding:"required"`
+	Dosage 			 string `json:"dosage" binding:"required"`
+	Ingredients 	 string `json:"ingredients" binding:"required"`
 }
 
 func AddMedicine(c *gin.Context) {
@@ -32,6 +34,8 @@ func AddMedicine(c *gin.Context) {
 	medicine.Purpose = input.Purpose
 	medicine.SideEffects = input.SideEffects
 	medicine.Contraindication = input.Contraindication
+	medicine.Dosage = input.Dosage
+	medicine.Ingredients = input.Ingredients
 
 	_, err := medicine.CreateMedicine()
 

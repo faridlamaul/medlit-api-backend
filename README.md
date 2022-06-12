@@ -2,25 +2,48 @@
 
 How to use the API:
 
--   Make sure you have installed docker and docker-compose on your local computer. If you don't, please refer to the [Docker installation guide](https://docs.docker.com/install/).
--   Run `docker-compose up` to start the API.
+-   Open your browser and go to endpoint https://medlit-app.et.r.appspot.com/api/medlit/
+-   You should see json that returns
 
-    ```bash
-    docker-compose up -d
+    ```
+    {
+        "error": "false",
+    	"message": "Welcome to Medlit API",
+    }
     ```
 
--   Open your browser and go to http://localhost:8080/api/v1/
--   You should see json that returns `Welcome to Medlit API Backend`
 -   You can use the following endpoints to test the API:
+-   Endpoint: https://medlit-app.et.r.appspot.com/api/medlit/
 
-    -   GET Method
+-   GET Method
 
-        -   `/api/v1/`: returns the list of available endpoints.
-        -   `/api/v1/medicine/get/all`: returns all medicines.
-        -   `/api/v1/medicine/get/{id}`: returns a medicine with the given id.
-        -   `/api/v1/medicine/search?generic_name={name of medicine}`: returns all medicines with the given name.
+    -   `/medicine/get/all`: returns all medicines.
 
-    -   POST Method
-        -   `/api/v1/medicine/add`: adds a new medicine.
-        -   `/api/v1/register`: registers a new user.
-        -   `/api/v1/login`: logs in a user.
+        ```
+        {
+            "error": "false",
+            "medicineList": [
+                {
+                    "id": 1,
+                    "generic_name": "Amlodipine Besilate",
+                    "photo_url": "https://storage.googleapis.com/medlit-bucket/amlodipine.jpg",
+                    "purpose": "Treat high blood pressure, certain types of angina and coronary artery disease",
+                    "side_effects": "Swelling of the hands, feet, ankles, or lower legs, headache, upset stomach, nausea, stomach pain, dizziness or lightheadedness, drowsiness, etc",
+                    "contraindication": "Hypersensitivity",
+                    "dosage": "5 to 10 mg once a day for Usual Adult Dose, 2.5 to 5 mg once a day for Usual Pediatic Dose",
+                    "ingredients": "Amlodipine 5 mg",
+                    "created_at": "2022-06-12T15:25:49.401342+07:00",
+                    "updated_at": "2022-06-12T15:25:49.401342+07:00"
+                }
+            ],
+            "message": "Medicine list"
+        }
+        ```
+
+    -   `/medicine/get/{id}`: returns a medicine with the given id.
+    -   `/medicine/search?generic_name={name of medicine}`: returns all medicines with the given name.
+
+-   POST Method
+    -   `/medicine/add`: adds a new medicine.
+    -   `/register`: registers a new user.
+    -   `/login`: logs in a user.
