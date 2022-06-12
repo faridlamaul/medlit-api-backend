@@ -40,7 +40,8 @@ func GetMedicineByID(id string) (*Medicine, error) {
 
 func GetMedicineByQuery(query string) ([]Medicine, error) {
 	var medicine []Medicine
-	err := DB.Where("generic_name LIKE ?", "%"+query+"%").Find(&medicine).Error
+	
+	err := DB.Where("generic_name ILIKE ?", "%"+query+"%").Find(&medicine).Error
 	if err != nil {
 		return nil, err
 	}
